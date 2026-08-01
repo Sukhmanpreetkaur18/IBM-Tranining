@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fake News Detector & Generator</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+
+    <div class="hero">
+        <h1>The Verification Desk</h1>
+        <p>Submit a story for review. NLP + Machine Learning weigh the evidence, and a local Generative AI model can draft sample copy for testing.</p>
+        <div class="hero-badges">
+            <span>NLP · TF-IDF</span>
+            <span>LOGISTIC REGRESSION</span>
+            <span>LOCAL GENAI · DISTILGPT2</span>
+            <span>EXPLAINABLE VERDICTS</span>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="detect">🔍 Detect</button>
+        <button class="tab-btn" data-tab="explain">🗂️ Explain</button>
+        <button class="tab-btn" data-tab="generate">🖋️ Generate</button>
+    </div>
+
+    <div class="panel active" id="panel-detect">
+        <div class="card">
+            <textarea id="detectInput" placeholder="Paste or type a news article / headline here..."></textarea>
+            <button class="btn" id="detectBtn">Analyze News</button>
+            <p class="hint">Tip: type your own sentence rather than copying from the training dataset for a realistic test.</p>
+            <div class="error" id="detectError"></div>
+            <div class="result" id="detectResult">
+                <div class="result-label" id="detectLabel"></div>
+                <div class="result-conf" id="detectConf"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" id="panel-explain">
+        <div class="card">
+            <textarea id="explainInput" placeholder="Paste or type a news article / headline here..."></textarea>
+            <button class="btn" id="explainBtn">Analyze & Explain</button>
+            <div class="error" id="explainError"></div>
+            <div class="result" id="explainResult">
+                <div class="result-label" id="explainLabel"></div>
+                <div class="result-conf" id="explainConf"></div>
+                <div class="word-tags" id="explainWords"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" id="panel-generate">
+        <div class="card">
+            <textarea id="generateInput" placeholder="Enter a headline or opening sentence, e.g. 'Scientists discover a new method to...'"></textarea>
+            <button class="btn" id="generateBtn">Generate News Text</button>
+            <p class="hint">Uses a small local AI model (distilgpt2). First request may take longer while the model loads. Generated text is for testing/demo only — not real news.</p>
+            <div class="error" id="generateError"></div>
+            <div class="generated-box" id="generateResult"></div>
+        </div>
+    </div>
+
+    <div class="footer">MEDIA VERIFICATION UNIT · NLP + ML + GENAI · FOR EDUCATIONAL USE ONLY</div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
