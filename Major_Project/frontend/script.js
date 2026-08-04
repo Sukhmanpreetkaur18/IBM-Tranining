@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000";
+const API_BASE = "https://fake-news-generator-and-detector-5t92.onrender.com";
 
 document.querySelectorAll(".tab-btn").forEach(btn => {
     btn.addEventListener("click", () => {
