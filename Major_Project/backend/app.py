@@ -1,7 +1,7 @@
 """
 app.py
 ------
-FastAPI backend. Run: uvicorn app:app --reload
+FastAPI backend with embedded frontend static serving.
 """
 
 import os
@@ -16,8 +16,9 @@ from pydantic import BaseModel
 from nlp_utils import clean_text
 from explain_utils import explain_prediction
 
-MODEL_PATH = "best_model.pkl"
-VECTORIZER_PATH = "tfidf_vectorizer.pkl" 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "best_model.pkl")
+VECTORIZER_PATH = os.path.join(BASE_DIR, "tfidf_vectorizer.pkl")
 
 try:
     with open(MODEL_PATH, "rb") as f:
@@ -37,12 +38,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# ── Serve frontend static files (CSS, JS) ──
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_DIR = os.path.join(BASE_DIR, "static")
-if os.path.exists(STATIC_DIR):
-    app.mount("/static", StaticFiles(directory=STATIC_DIR, html=True), name="static")
 
 
 class NewsItem(BaseModel):
@@ -83,20 +78,6 @@ def _predict(text: str):
     return label, confidence, vector
 
 
-@app.get("/", response_class=HTMLResponse)
-async def root():
-    paths = [
-        os.path.join(STATIC_DIR, "index.html"),
-        os.path.abspath(os.path.join(BASE_DIR, "..", "frontend", "index.html")),
-        os.path.abspath(os.path.join(BASE_DIR, "frontend", "index.html")),
-    ]
-    for p in paths:
-        if os.path.isfile(p):
-            with open(p, "r", encoding="utf-8") as f:
-                return HTMLResponse(content=f.read())
-    return HTMLResponse(content="<h1>Fake News Verification Desk API is running.</h1><p>Frontend static file not found.</p>")
-
-
 @app.post("/predict", response_model=PredictionResponse)
 async def predict_news(item: NewsItem):
     label, confidence, _ = _predict(item.text)
@@ -132,6 +113,15 @@ async def generate_text(req: GenerateRequest):
             detail="Generator not installed. Run: pip install transformers torch",
         )
     return GenerateResponse(generated_text=text)
+
+
+# ── Mount static files at root AFTER API routes ──
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+if not os.path.exists(STATIC_DIR):
+    STATIC_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "frontend"))
+
+if os.path.exists(STATIC_DIR):
+    app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
 
 
 if __name__ == "__main__":

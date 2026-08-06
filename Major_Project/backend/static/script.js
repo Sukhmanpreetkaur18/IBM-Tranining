@@ -1,7 +1,7 @@
 // Smart API Endpoint Selection
 const API_BASE = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.protocol === "file:")
     ? "http://127.0.0.1:8000"
-    : "https://fake-news-detector-and-genrator.onrender.com";
+    : window.location.origin;
 
 document.addEventListener("DOMContentLoaded", () => {
     // Tab Navigation
