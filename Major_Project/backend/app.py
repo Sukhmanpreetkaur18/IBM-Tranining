@@ -4,10 +4,13 @@ app.py
 FastAPI backend. Run: uvicorn app:app --reload
 """
 
+import os
 import pickle
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel
 
 from nlp_utils import clean_text
@@ -34,6 +37,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── Serve frontend static files (CSS, JS) ──
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+if os.path.exists(STATIC_DIR):
+    app.mount("/static", StaticFiles(directory=STATIC_DIR, html=True), name="static")
 
 
 class NewsItem(BaseModel):
@@ -74,9 +83,18 @@ def _predict(text: str):
     return label, confidence, vector
 
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 async def root():
-    return {"message": "Fake News Detector + Generator API is running."}
+    paths = [
+        os.path.join(STATIC_DIR, "index.html"),
+        os.path.abspath(os.path.join(BASE_DIR, "..", "frontend", "index.html")),
+        os.path.abspath(os.path.join(BASE_DIR, "frontend", "index.html")),
+    ]
+    for p in paths:
+        if os.path.isfile(p):
+            with open(p, "r", encoding="utf-8") as f:
+                return HTMLResponse(content=f.read())
+    return HTMLResponse(content="<h1>Fake News Verification Desk API is running.</h1><p>Frontend static file not found.</p>")
 
 
 @app.post("/predict", response_model=PredictionResponse)
