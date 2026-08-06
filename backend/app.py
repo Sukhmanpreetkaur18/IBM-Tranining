@@ -4,10 +4,13 @@ app.py
 FastAPI backend. Run: uvicorn app:app --reload
 """
 
+import os
 import pickle
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from nlp_utils import clean_text
@@ -34,6 +37,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── Serve frontend static files (CSS, JS) ──
+STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
+if os.path.isdir(STATIC_DIR):
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
 class NewsItem(BaseModel):
@@ -76,6 +84,9 @@ def _predict(text: str):
 
 @app.get("/")
 async def root():
+    index_path = os.path.join(STATIC_DIR, "index.html")
+    if os.path.isfile(index_path):
+        return FileResponse(index_path)
     return {"message": "Fake News Detector + Generator API is running."}
 
 
