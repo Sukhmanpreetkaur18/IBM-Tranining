@@ -39,9 +39,10 @@ app.add_middleware(
 )
 
 # ── Serve frontend static files (CSS, JS) ──
-STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
-if os.path.isdir(STATIC_DIR):
-    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+if os.path.exists(STATIC_DIR):
+    app.mount("/static", StaticFiles(directory=STATIC_DIR, html=True), name="static")
 
 
 class NewsItem(BaseModel):
@@ -87,6 +88,9 @@ async def root():
     index_path = os.path.join(STATIC_DIR, "index.html")
     if os.path.isfile(index_path):
         return FileResponse(index_path)
+    fallback_path = os.path.abspath(os.path.join(BASE_DIR, "..", "frontend", "index.html"))
+    if os.path.isfile(fallback_path):
+        return FileResponse(fallback_path)
     return {"message": "Fake News Detector + Generator API is running."}
 
 
